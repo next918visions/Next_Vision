@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Tulsa Film Tribe — Member Portal</title>
+<meta name="description" content="The private member portal for The Tulsa Film Tribe — projects, jobs, benefits, and the directory. Built by Next Vision."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<script>
+/* ════════════════════════════════════════════════════
+   TRIBE PORTAL — ECOSYSTEM CONFIG
+   Cross-site URLs. Leave as-is for local file testing. When deployed,
+   set to full URLs (e.g. "https://nextvisiontulsa.com/tribe/").
+   ════════════════════════════════════════════════════ */
+const ECOSYSTEM = {
+  parentUrl: "index.html",                 // Next Vision agency site
+  tribeUrl:  "TulsaFilmTribe.html",         // Tribe public site
+  portfolioUrl: "NextVision_Portfolio.html" // Portfolio / case studies
+};
+function goToNV(){ window.location.href = ECOSYSTEM.parentUrl; }
+function goToTribe(){ window.location.href = ECOSYSTEM.tribeUrl; }
+function goToTribeApply(){ window.location.href = ECOSYSTEM.tribeUrl + '#join'; }
+
+/* ════════════════════════════════════════════════════
+   TRIBE PORTAL — MOCK DATA  (no backend; everything fake but realistic)
+   ════════════════════════════════════════════════════ */
+const ME = {
+  name: "Maya Reyes",
+  handle: "@mayareyes",
+  role: "Director / DP",
+  discipline: "Filmmakers & Directors",
+  pronouns: "she/her",
+  city: "Tulsa, OK",
+  joined: "March 2024",
+  rate: "$650/day",
+  status: "Active",
+  bio: "Documentary-leaning narrative director. Comfortable on Sony FX6 and 16mm. Currently in post on the Greenwood Project.",
+  skills: ["Directing","Cinematography","FX6","RED Komodo","Color (Resolve)","16mm"],
+  reel: "vimeo.com/mayareyes-reel",
+  avatarBg: "linear-gradient(135deg,#C0392B 0%,#C8922A 100%)",
+};
+
+const ANNOUNCEMENTS = [
+  { tag:"Flagship", color:"gold", title:"Greenwood — pickup days locked Apr 28–30", body:"Final pickups for the flagship doc. Production office at the Boxyard. Crew call sheet drops Friday.", who:"Paul Said", when:"2 hours ago"},
+  { tag:"New Job", color:"red", title:"Hille Foundation brand film — bidding open", body:"3-day shoot, end of May. Looking for a director, DP, sound, and a 1st AC. Pitch by Friday.", who:"Paul Said", when:"yesterday"},
+  { tag:"Tribe", color:"cream", title:"Monthly screening — Circle Cinema, Apr 30", body:"Member work + a rough cut from the flagship. RSVP in the Calendar. BYOB and bring a friend.", who:"Diana Sims", when:"3 days ago"},
+];
+
+const PROJECTS = [
+  { id:"greenwood", title:"Greenwood — A Living Memory", type:"Flagship Doc", phase:"Post-production", progress:72, accent:"gold",
+    crew:[{n:"Paul Said",r:"EP"},{n:"Maya Reyes",r:"Director"},{n:"Jordan Wilks",r:"DP"},{n:"Asha Kone",r:"Editor"}],
+    nextMilestone:"Director's cut review · May 8", lastUpdate:"2h ago", coverGrad:"linear-gradient(135deg,#1a1814 0%,#3a1a14 50%,#C8922A 130%)"},
+  { id:"hille", title:"Hille Foundation Brand Film", type:"Client", phase:"Pre-production", progress:18, accent:"red",
+    crew:[{n:"Diana Sims",r:"EP"},{n:"OPEN",r:"Director"},{n:"OPEN",r:"DP"},{n:"OPEN",r:"Sound"}],
+    nextMilestone:"Treatment pitches due · Apr 30", lastUpdate:"1d ago", coverGrad:"linear-gradient(135deg,#0c0b09 0%,#2a1010 60%,#C0392B 130%)"},
+  { id:"sirens", title:"Sirens of the Plains (Music Video)", type:"Spec / Tribe", phase:"In production", progress:48, accent:"red",
+    crew:[{n:"Tessa Bloom",r:"Director"},{n:"Maya Reyes",r:"DP"},{n:"Lou Park",r:"Stylist"}],
+    nextMilestone:"Day 2 shoot · Apr 27", lastUpdate:"4h ago", coverGrad:"linear-gradient(135deg,#0a0a14 0%,#1a0a2a 60%,#7a3a8a 130%)"},
+  { id:"podcast", title:"The Tribe Podcast — Season 2", type:"Internal", phase:"Active", progress:35, accent:"gold",
+    crew:[{n:"Asha Kone",r:"Producer"},{n:"Marcus Lin",r:"Engineer"}],
+    nextMilestone:"Ep. 04 record · Apr 29", lastUpdate:"yesterday", coverGrad:"linear-gradient(135deg,#0a1014 0%,#0a2a3a 60%,#3a8a8a 130%)"},
+];
+
+const JOBS = [
+  { id:"j1", title:"DP — Hille Foundation brand film", type:"Paid · Client", rate:"$1,800/day · 3 days", deadline:"Apr 30", posted:"yesterday", who:"Paul Said", tags:["DP","Cinema","Doc-style"], filled:false, applicants:4 },
+  { id:"j2", title:"1st AC — Greenwood pickups", type:"Paid · Flagship", rate:"$450/day · 2 days", deadline:"Apr 27", posted:"2d ago", who:"Jordan Wilks", tags:["Camera","FX6","Pulling focus"], filled:false, applicants:6 },
+  { id:"j3", title:"Sound recordist — Sirens MV", type:"Trade · Tribe", rate:"Trade · meals + reel", deadline:"Apr 26", posted:"3d ago", who:"Tessa Bloom", tags:["Sound","Music video"], filled:false, applicants:2 },
+  { id:"j4", title:"Editor — short doc series", type:"Paid · External", rate:"$3,500 flat · 4 weeks", deadline:"May 5", posted:"4d ago", who:"Paul Said", tags:["Edit","Resolve","Doc"], filled:false, applicants:9 },
+  { id:"j5", title:"Stills photographer — Greenwood BTS", type:"Paid · Flagship", rate:"$400/day · 3 days", deadline:"Filled", posted:"1w ago", who:"Diana Sims", tags:["Stills","BTS"], filled:true, applicants:11 },
+];
+
+const BENEFITS = [
+  { icon:"camera", title:"Gear Locker", body:"Shared access to FX6, RED Komodo, Aputure 600x kit, and a small lens collection. Reserve via the calendar." },
+  { icon:"book",   title:"Contracts & Templates", body:"Vetted treatment, deal memo, location release, and image release templates — the legal scaffolding of a real production." },
+  { icon:"users",  title:"Tribe Rate Card", body:"Day rates and minimums Paul will hold the line on, so we don't undercut each other." },
+  { icon:"film",   title:"Edit Suite Access", body:"Two color-calibrated edit bays at the office. Book in 4-hour blocks." },
+  { icon:"mic",    title:"Podcast Studio", body:"4-mic treated room. Available for personal podcasts at no cost — first-come, first-served." },
+  { icon:"map",    title:"Location Library", body:"Vetted Tulsa locations with permit notes, contact info, and what we paid last time." },
+  { icon:"award",  title:"Festival Submissions", body:"Tribe pays submission fees for member work to a curated list of festivals each cycle." },
+  { icon:"hand",   title:"Health Stipend", body:"Per-project stipend toward dental + vision for active members on flagship productions." },
+];
+
+const DIRECTORY = [
+  { n:"Paul Said",     r:"Founder / EP",      d:"Leadership",                   c:"#C0392B" },
+  { n:"Diana Sims",    r:"Producer",          d:"Filmmakers & Directors",       c:"#C8922A" },
+  { n:"Jordan Wilks",  r:"Director / DP",     d:"Filmmakers & Directors",       c:"#C8922A" },
+  { n:"Maya Reyes",    r:"Director / DP",     d:"Filmmakers & Directors",       c:"#C8922A" },
+  { n:"Tessa Bloom",   r:"Music Video Dir.",  d:"Filmmakers & Directors",       c:"#C8922A" },
+  { n:"Asha Kone",     r:"Editor",            d:"Post & Color",                 c:"#7a3a8a" },
+  { n:"Marcus Lin",    r:"Audio Engineer",    d:"Sound & Podcast",              c:"#3a8a8a" },
+  { n:"Lou Park",      r:"Stylist / 2D",      d:"Design & Styling",             c:"#C0392B" },
+  { n:"Rae Holland",   r:"Stills",            d:"Photography",                  c:"#8a5a3a" },
+  { n:"Kev Owusu",     r:"Gaffer",            d:"Camera & Lighting",            c:"#C8922A" },
+  { n:"Sami Cardoza",  r:"1st AC",            d:"Camera & Lighting",            c:"#C8922A" },
+  { n:"Riley Tate",    r:"Production Coord.", d:"Production",                   c:"#C0392B" },
+];
+
+const CALENDAR = [
+  { d:"APR", n:"26", t:"Sirens MV — Day 1",        loc:"Mohawk Park",            tag:"Shoot" },
+  { d:"APR", n:"27", t:"Sirens MV — Day 2",        loc:"Mohawk Park",            tag:"Shoot" },
+  { d:"APR", n:"28", t:"Greenwood pickups",         loc:"Boxyard",                tag:"Flagship" },
+  { d:"APR", n:"30", t:"Tribe Screening + Drinks",  loc:"Circle Cinema",          tag:"Tribe" },
+  { d:"MAY", n:"03", t:"Hille treatment pitches",   loc:"NV Office",              tag:"Pitch" },
+  { d:"MAY", n:"08", t:"Greenwood DC Review",       loc:"Edit Bay 1",             tag:"Flagship" },
+];
+
+const RECENT_WORK = [
+  { t:"The Last Roundtable", who:"Diana Sims",   type:"Doc Short",    grad:"linear-gradient(135deg,#3a1a14 0%,#C0392B 100%)" },
+  { t:"Heartwood",           who:"Tessa Bloom",  type:"Music Video",  grad:"linear-gradient(135deg,#0a0a14 0%,#7a3a8a 100%)" },
+  { t:"Hille Annual",        who:"Jordan Wilks", type:"Brand Film",   grad:"linear-gradient(135deg,#1a1814 0%,#C8922A 100%)" },
+  { t:"Plains Songbook",     who:"Asha Kone",    type:"Series Cut",   grad:"linear-gradient(135deg,#0a1014 0%,#3a8a8a 100%)" },
+];
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --red:#C0392B; --red-lt:#E04535; --red-dk:#8B1A1A;
+  --gold:#C8922A; --gold-lt:#E8B84B; --gold-dk:#9A6F1E;
+  --ink:#0C0B09; --ink2:#1A1814; --ink3:#252220; --ink4:#33302C;
+  --cream:#F2EDE5; --sand:#D8D0C4; --fog:#6B6560; --mist:#A69F97;
+  --white:#FFFFFF;
+  --radius:8px;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ink);color:var(--cream);overflow-x:hidden;line-height:1.55;}
+
+.page{display:none;}
+.page.active{display:block;animation:pgIn .45s cubic-bezier(.16,1,.3,1) both;}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ════ LOGIN ════ */
+.login-stage{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:var(--ink);}
+@media(max-width:900px){.login-stage{grid-template-columns:1fr;}}
+.login-art{position:relative;background:#0a0908;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;}
+.login-art::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(circle at 80% 20%,rgba(200,146,42,.18),transparent 45%),
+  radial-gradient(circle at 15% 85%,rgba(192,57,43,.22),transparent 45%);}
+.login-art::after{content:'';position:absolute;inset:0;background:
+  repeating-linear-gradient(-50deg,transparent,transparent 80px,rgba(200,146,42,.04) 80px,rgba(200,146,42,.04) 81px);
+  mix-blend-mode:overlay;}
+.login-brand{position:relative;z-index:2;display:flex;align-items:center;gap:14px;}
+.login-brand-tag{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);border-right:1px solid rgba(255,255,255,.1);padding-right:14px;}
+.login-brand-tag span{color:var(--red);}
+.login-brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--white);letter-spacing:.02em;}
+.login-brand-name em{font-style:normal;color:var(--gold);}
+.login-art-content{position:relative;z-index:2;}
+.login-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+.login-eyebrow::before{content:'';width:32px;height:1px;background:var(--gold);}
+.login-headline{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(48px,6vw,86px);line-height:.94;letter-spacing:-.02em;color:var(--white);margin-bottom:24px;}
+.login-headline em{font-style:normal;color:var(--gold);}
+.login-headline .red{color:var(--red);}
+.login-subhead{font-family:'Fraunces',serif;font-size:18px;line-height:1.55;color:rgba(255,255,255,.55);max-width:480px;margin-bottom:32px;font-style:italic;font-weight:400;}
+.login-stats{display:flex;gap:36px;position:relative;z-index:2;}
+.login-stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white);}
+.login-stat-num em{font-style:normal;color:var(--gold);}
+.login-stat-label{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:4px;}
+
+.login-form{padding:48px 56px;display:flex;flex-direction:column;justify-content:center;background:var(--ink);}
+.login-card-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(200,146,42,.7);margin-bottom:14px;}
+.login-card-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--white);line-height:1.05;margin-bottom:8px;}
+.login-card-title em{font-style:normal;color:var(--gold);}
+.login-card-sub{font-size:14px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.6;margin-bottom:32px;max-width:380px;}
+.login-form-fields{max-width:380px;}
+.login-field{margin-bottom:16px;}
+.login-label{display:block;font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:8px;}
+.login-input{width:100%;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--white);font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border-radius:var(--radius);outline:none;transition:all .2s;}
+.login-input:focus{border-color:var(--gold);background:rgba(255,255,255,.06);}
+.login-btn{width:100%;padding:15px;background:var(--gold);color:var(--ink);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:none;border-radius:var(--radius);cursor:pointer;margin-top:8px;transition:all .2s;display:inline-flex;align-items:center;justify-content:center;gap:10px;}
+.login-btn:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.login-hint{font-size:12px;color:rgba(255,255,255,.4);margin-top:18px;line-height:1.6;}
+.login-hint code{background:rgba(200,146,42,.1);color:var(--gold);padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;}
+.login-foot{margin-top:36px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:rgba(255,255,255,.35);max-width:380px;display:flex;justify-content:space-between;}
+.login-foot a{color:var(--gold);cursor:pointer;text-decoration:none;}
+.login-foot a:hover{color:var(--gold-lt);}
+
+/* ════ APP SHELL ════ */
+.app-shell{min-height:100vh;background:var(--ink);}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(12,11,9,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(200,146,42,.18);height:60px;display:flex;align-items:center;padding:0 24px;gap:24px;}
+.tb-brand{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.tb-brand-tag{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.4);border-right:1px solid rgba(255,255,255,.1);padding-right:12px;}
+.tb-brand-tag span{color:var(--red);}
+.tb-brand-name{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--white);letter-spacing:.02em;}
+.tb-brand-name em{font-style:normal;color:var(--gold);}
+.tb-eco{display:flex;align-items:center;gap:7px;font-family:'Syne',sans-serif;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.tb-eco-link{cursor:pointer;padding:4px 7px;border-radius:5px;transition:all .15s;}
+.tb-eco-link:hover{color:var(--gold);background:rgba(200,146,42,.08);}
+.tb-eco-sep{color:rgba(255,255,255,.18);}
+.tb-portal-pill{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:rgba(200,146,42,.1);padding:5px 10px;border-radius:20px;border:1px solid rgba(200,146,42,.25);}
+.tb-search{flex:1;max-width:420px;position:relative;}
+.tb-search input{width:100%;padding:9px 14px 9px 38px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);color:var(--white);font-size:13px;font-family:inherit;border-radius:8px;outline:none;}
+.tb-search input::placeholder{color:rgba(255,255,255,.3);}
+.tb-search input:focus{border-color:rgba(200,146,42,.4);background:rgba(255,255,255,.06);}
+.tb-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:rgba(255,255,255,.4);fill:none;stroke-width:2;}
+.tb-search-shortcut{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:rgba(255,255,255,.04);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.06);}
+.tb-actions{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.tb-icon-btn{width:36px;height:36px;border-radius:8px;background:transparent;border:1px solid transparent;color:rgba(255,255,255,.55);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;}
+.tb-icon-btn:hover{background:rgba(255,255,255,.04);color:var(--white);border-color:rgba(255,255,255,.06);}
+.tb-icon-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tb-icon-btn .dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--red);border:2px solid var(--ink);}
+.tb-me{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 5px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);cursor:pointer;transition:all .15s;}
+.tb-me:hover{background:rgba(255,255,255,.06);border-color:rgba(200,146,42,.25);}
+.tb-me-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;color:var(--ink);}
+.tb-me-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.85);}
+@media(max-width:760px){.tb-search{display:none;}.tb-me-name{display:none;}.tb-portal-pill{display:none;}.tb-eco{display:none;}}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:60px;left:0;bottom:0;width:240px;background:#0a0908;border-right:1px solid rgba(255,255,255,.05);padding:24px 0;overflow-y:auto;z-index:150;}
+.sidebar-section{margin-bottom:8px;}
+.sidebar-label{font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:10px 24px 8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 24px;font-size:13px;font-weight:500;color:rgba(255,255,255,.55);cursor:pointer;transition:all .12s;border-left:2px solid transparent;}
+.nav-item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nav-item:hover{color:var(--white);background:rgba(255,255,255,.03);}
+.nav-item.active{color:var(--gold);background:rgba(200,146,42,.06);border-left-color:var(--gold);font-weight:600;}
+.nav-item .badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--red);color:var(--white);}
+.sidebar-foot{padding:18px 24px;border-top:1px solid rgba(255,255,255,.05);margin-top:14px;}
+.sidebar-foot-card{background:linear-gradient(135deg,rgba(192,57,43,.12),rgba(200,146,42,.08));border:1px solid rgba(200,146,42,.2);border-radius:8px;padding:14px;}
+.sidebar-foot-eyebrow{font-size:8px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.sidebar-foot-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:8px;}
+.sidebar-foot-cta{font-size:11px;color:var(--gold-lt);cursor:pointer;}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);transition:transform .3s;}.sidebar.open{transform:translateX(0);}}
+
+/* MAIN */
+.main{margin-left:240px;padding-top:60px;min-height:100vh;}
+@media(max-width:900px){.main{margin-left:0;}}
+
+/* PAGE HEAD shared */
+.page-head{padding:36px 40px 0;}
+.page-head-row{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:8px;}
+.page-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.page-eyebrow::before{content:'';width:24px;height:1px;background:var(--gold);}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,4vw,52px);line-height:.98;letter-spacing:-.02em;color:var(--white);}
+.page-title em{font-style:normal;color:var(--gold);}
+.page-title .red{color:var(--red);}
+.page-sub{font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:rgba(255,255,255,.5);margin-top:14px;max-width:560px;line-height:1.55;}
+.page-body{padding:32px 40px 64px;}
+@media(max-width:640px){.page-head{padding:24px 20px 0;}.page-body{padding:24px 20px 48px;}}
+
+/* LAYOUT TOGGLE (home only) */
+.layout-toggle{display:inline-flex;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:3px;}
+.layout-toggle button{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px;border-radius:20px;border:none;background:transparent;color:rgba(255,255,255,.5);cursor:pointer;transition:all .2s;}
+.layout-toggle button.active{background:var(--gold);color:var(--ink);}
+.layout-toggle button:hover:not(.active){color:var(--white);}
+
+/* ════ CARD PRIMITIVES ════ */
+.card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:24px;}
+.card-tight{padding:18px;}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px;}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);letter-spacing:.04em;text-transform:uppercase;}
+.card-title em{font-style:normal;color:var(--gold);}
+.card-link{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(200,146,42,.8);cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.card-link:hover{color:var(--gold-lt);}
+.divider-soft{height:1px;background:rgba(255,255,255,.05);margin:14px 0;}
+
+.btn{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 18px;border-radius:6px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .15s;}
+.btn-gold{background:var(--gold);color:var(--ink);}
+.btn-gold:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.btn-red{background:var(--red);color:var(--white);}
+.btn-red:hover{background:var(--red-lt);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12);}
+.btn-ghost:hover{background:rgba(255,255,255,.04);color:var(--white);border-color:rgba(255,255,255,.2);}
+.btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ════ HOME — VARIATION 1 (Editorial Brief) ════ */
+.v1-hero{background:linear-gradient(135deg,#0c0b09 0%,#1a1814 50%,#2a1812 100%);border-radius:14px;padding:42px;position:relative;overflow:hidden;margin-bottom:24px;border:1px solid rgba(200,146,42,.12);}
+.v1-hero::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(200,146,42,.18) 0%,transparent 60%);}
+.v1-hero::after{content:'';position:absolute;bottom:-80px;left:30%;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(192,57,43,.14) 0%,transparent 60%);}
+.v1-hero-inner{position:relative;z-index:2;display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;}
+@media(max-width:820px){.v1-hero-inner{grid-template-columns:1fr;}}
+.v1-greet{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.v1-headline{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(34px,4vw,48px);line-height:1.0;letter-spacing:-.02em;color:var(--white);margin-bottom:18px;}
+.v1-headline em{font-style:normal;color:var(--gold);}
+.v1-blurb{font-family:'Fraunces',serif;font-style:italic;font-size:16px;line-height:1.55;color:rgba(255,255,255,.65);margin-bottom:28px;max-width:520px;}
+.v1-meta-row{display:flex;gap:32px;flex-wrap:wrap;}
+.v1-meta-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white);}
+.v1-meta-num em{font-style:normal;color:var(--gold);}
+.v1-meta-lbl{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:3px;}
+.v1-hero-photo{aspect-ratio:4/5;border-radius:10px;background:linear-gradient(135deg,#3a1a14 0%,#C0392B 50%,#C8922A 100%);position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:20px;}
+.v1-hero-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7),transparent 50%);}
+.v1-hero-photo-cap{position:relative;z-index:2;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--white);}
+.v1-hero-photo-cap em{font-style:normal;color:var(--gold-lt);display:block;font-size:10px;letter-spacing:.18em;margin-bottom:4px;font-weight:600;opacity:.85;}
+
+.v1-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;}
+@media(max-width:900px){.v1-grid{grid-template-columns:1fr;}}
+
+.v1-feed-item{padding:20px 0;border-bottom:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:80px 1fr;gap:18px;align-items:start;}
+.v1-feed-item:last-child{border-bottom:none;padding-bottom:0;}
+.v1-feed-tag{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:6px;}
+.v1-feed-tag.gold{background:rgba(200,146,42,.15);color:var(--gold-lt);}
+.v1-feed-tag.red{background:rgba(192,57,43,.15);color:var(--red-lt);}
+.v1-feed-tag.cream{background:rgba(242,237,229,.08);color:var(--cream);}
+.v1-feed-time{font-size:11px;color:rgba(255,255,255,.35);font-family:'JetBrains Mono',monospace;}
+.v1-feed-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--white);margin-bottom:6px;line-height:1.3;}
+.v1-feed-body{font-size:13px;font-weight:300;line-height:1.6;color:rgba(255,255,255,.55);margin-bottom:8px;}
+.v1-feed-who{font-size:11px;color:rgba(255,255,255,.4);}
+.v1-feed-who em{font-style:normal;color:var(--gold-lt);}
+
+.v1-side-stack{display:flex;flex-direction:column;gap:20px;}
+.v1-mini-list{list-style:none;}
+.v1-mini-list li{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.v1-mini-list li:last-child{border-bottom:none;}
+.v1-mini-date{width:48px;text-align:center;flex-shrink:0;}
+.v1-mini-date-m{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.v1-mini-date-d{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);line-height:1;}
+.v1-mini-info{flex:1;}
+.v1-mini-title{font-size:13px;font-weight:600;color:var(--white);}
+.v1-mini-meta{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px;}
+.v1-mini-tag{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:3px 7px;border-radius:3px;background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);}
+
+/* WORK STRIP */
+.work-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:8px;}
+@media(max-width:760px){.work-strip{grid-template-columns:repeat(2,1fr);}}
+.work-tile{aspect-ratio:4/5;border-radius:8px;position:relative;overflow:hidden;cursor:pointer;transition:transform .25s;}
+.work-tile:hover{transform:translateY(-3px);}
+.work-tile::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85),transparent 55%);}
+.work-tile-info{position:absolute;bottom:0;left:0;right:0;padding:14px;z-index:2;}
+.work-tile-type{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-lt);margin-bottom:5px;}
+.work-tile-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:3px;}
+.work-tile-who{font-size:11px;color:rgba(255,255,255,.65);}
+
+/* ════ HOME — VARIATION 2 (Dense Console) ════ */
+.v2-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;grid-auto-rows:min-content;}
+.v2-tile{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:18px;}
+.v2-tile-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
+.v2-tile-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:8px;}
+.v2-tile-label svg{width:12px;height:12px;stroke:var(--gold);fill:none;stroke-width:2;}
+.v2-tile-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--white);line-height:1;}
+.v2-tile-num em{font-style:normal;color:var(--gold);}
+.v2-tile-delta{font-size:11px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;margin-top:6px;}
+.v2-tile-delta.up{color:#85c285;}
+
+.v2-status-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;}
+.v2-status-row:last-child{border-bottom:none;}
+.v2-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.v2-status-dot.green{background:#85c285;box-shadow:0 0 8px rgba(133,194,133,.6);}
+.v2-status-dot.gold{background:var(--gold);box-shadow:0 0 8px rgba(200,146,42,.6);}
+.v2-status-dot.red{background:var(--red-lt);box-shadow:0 0 8px rgba(224,69,53,.5);}
+.v2-status-name{flex:1;color:rgba(255,255,255,.85);font-weight:500;}
+.v2-status-meta{font-size:11px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;}
+
+.v2-progress-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.v2-progress-row:last-child{border-bottom:none;}
+.v2-progress-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px;}
+.v2-progress-name{color:rgba(255,255,255,.85);font-weight:500;}
+.v2-progress-pct{font-family:'JetBrains Mono',monospace;color:var(--gold);}
+.v2-progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.v2-progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--red),var(--gold));}
+
+.v2-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.v2-quick-btn{padding:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;cursor:pointer;text-align:left;transition:all .15s;display:flex;align-items:flex-start;gap:10px;}
+.v2-quick-btn:hover{border-color:rgba(200,146,42,.4);background:rgba(200,146,42,.04);}
+.v2-quick-btn svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.8;flex-shrink:0;margin-top:2px;}
+.v2-quick-name{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--white);}
+.v2-quick-desc{font-size:10px;color:rgba(255,255,255,.45);margin-top:3px;line-height:1.4;}
+
+/* ════ HOME — VARIATION 3 (Photo-forward) ════ */
+.v3-stack{display:flex;flex-direction:column;gap:32px;}
+.v3-marquee{position:relative;border-radius:16px;overflow:hidden;background:#0a0908;min-height:380px;display:flex;align-items:flex-end;padding:48px;}
+.v3-marquee::before{content:'';position:absolute;inset:0;background:
+  linear-gradient(135deg,#1a0a08 0%,#3a1814 35%,#0a0808 70%),
+  radial-gradient(circle at 80% 30%,rgba(200,146,42,.3),transparent 50%);}
+.v3-marquee::after{content:'';position:absolute;inset:0;background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'><circle cx='1' cy='1' r='.4' fill='%23C8922A' opacity='.06'/></svg>");}
+.v3-marquee-inner{position:relative;z-index:2;max-width:680px;}
+.v3-marquee-eyebrow{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:18px;display:flex;align-items:center;gap:14px;}
+.v3-marquee-eyebrow::before{content:'';width:36px;height:1px;background:var(--gold);}
+.v3-marquee-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(40px,5vw,68px);line-height:.96;letter-spacing:-.02em;color:var(--white);margin-bottom:20px;}
+.v3-marquee-title em{font-style:normal;color:var(--gold);}
+.v3-marquee-blurb{font-family:'Fraunces',serif;font-style:italic;font-size:18px;line-height:1.55;color:rgba(255,255,255,.7);margin-bottom:24px;max-width:540px;}
+.v3-marquee-meta{display:flex;gap:24px;flex-wrap:wrap;align-items:center;}
+.v3-marquee-meta-item{font-size:12px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:8px;}
+.v3-marquee-meta-item .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);}
+
+.v3-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:900px){.v3-cols{grid-template-columns:1fr;}}
+.v3-feature{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s;}
+.v3-feature:hover{transform:translateY(-4px);border-color:rgba(200,146,42,.3);}
+.v3-feature-photo{aspect-ratio:16/10;}
+.v3-feature-body{padding:20px;}
+.v3-feature-tag{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.v3-feature-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:8px;}
+.v3-feature-blurb{font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;}
+
+/* ════ PROJECTS PAGE ════ */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;}
+.proj-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s,border-color .25s;}
+.proj-card:hover{transform:translateY(-3px);border-color:rgba(200,146,42,.3);}
+.proj-cover{aspect-ratio:16/9;position:relative;display:flex;align-items:flex-end;padding:18px;}
+.proj-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent 60%);}
+.proj-cover-inner{position:relative;z-index:2;width:100%;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;}
+.proj-type{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-lt);background:rgba(0,0,0,.5);padding:5px 10px;border-radius:4px;border:1px solid rgba(200,146,42,.3);}
+.proj-phase{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.5);padding:5px 10px;border-radius:4px;}
+.proj-body{padding:20px;}
+.proj-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:14px;}
+.proj-prog-bar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:8px;}
+.proj-prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--gold));}
+.proj-prog-meta{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.45);font-family:'JetBrains Mono',monospace;margin-bottom:18px;}
+.proj-prog-meta em{font-style:normal;color:var(--gold);}
+.proj-crew{display:flex;align-items:center;gap:6px;margin-bottom:14px;}
+.proj-crew-stack{display:flex;}
+.proj-crew-avatar{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink2);background:linear-gradient(135deg,#C8922A,#C0392B);font-family:'Syne',sans-serif;font-size:10px;font-weight:800;color:var(--ink);display:flex;align-items:center;justify-content:center;margin-left:-7px;}
+.proj-crew-avatar:first-child{margin-left:0;}
+.proj-crew-count{font-size:11px;color:rgba(255,255,255,.45);margin-left:6px;}
+.proj-foot{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:rgba(255,255,255,.5);}
+.proj-foot-next{color:var(--gold-lt);font-weight:600;}
+
+/* ════ JOBS PAGE ════ */
+.jobs-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.jobs-pill{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:7px 14px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.6);cursor:pointer;transition:all .15s;}
+.jobs-pill.active{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+.jobs-pill:hover:not(.active){border-color:rgba(200,146,42,.4);color:var(--white);}
+
+.job-row{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:22px 24px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;transition:all .2s;}
+.job-row:hover{border-color:rgba(200,146,42,.3);transform:translateX(2px);}
+.job-row.filled{opacity:.5;}
+.job-tag-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;}
+.job-type{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);background:rgba(200,146,42,.1);padding:4px 9px;border-radius:4px;}
+.job-type.filled{color:rgba(255,255,255,.5);background:rgba(255,255,255,.05);}
+.job-deadline{font-size:11px;color:rgba(255,255,255,.5);font-family:'JetBrains Mono',monospace;}
+.job-deadline em{font-style:normal;color:var(--red-lt);}
+.job-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--white);margin-bottom:8px;line-height:1.2;}
+.job-rate{font-size:13px;color:var(--gold-lt);font-weight:600;margin-bottom:10px;}
+.job-meta{display:flex;align-items:center;gap:14px;font-size:11px;color:rgba(255,255,255,.45);flex-wrap:wrap;}
+.job-meta .skill-chip{font-size:10px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.6);background:rgba(255,255,255,.04);padding:3px 8px;border-radius:3px;}
+.job-applicants{font-family:'JetBrains Mono',monospace;}
+.job-action{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.job-action-btn{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:9px 18px;border-radius:6px;border:none;cursor:pointer;}
+.job-action-btn.apply{background:var(--gold);color:var(--ink);}
+.job-action-btn.apply:hover{background:var(--gold-lt);}
+.job-action-btn.filled{background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);cursor:default;}
+
+/* ════ BENEFITS PAGE ════ */
+.ben-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.ben-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:24px;transition:all .25s;cursor:pointer;}
+.ben-card:hover{border-color:rgba(200,146,42,.3);transform:translateY(-2px);}
+.ben-icon{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,rgba(200,146,42,.18),rgba(192,57,43,.1));display:flex;align-items:center;justify-content:center;margin-bottom:18px;border:1px solid rgba(200,146,42,.2);}
+.ben-icon svg{width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.ben-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--white);margin-bottom:8px;}
+.ben-body{font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;}
+
+/* ════ DIRECTORY PAGE ════ */
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.dir-card{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;cursor:pointer;transition:all .2s;}
+.dir-card:hover{border-color:rgba(200,146,42,.3);transform:translateY(-2px);}
+.dir-avatar{width:54px;height:54px;border-radius:50%;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--ink);display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.dir-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:3px;}
+.dir-role{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.dir-disc{font-size:11px;color:rgba(255,255,255,.4);}
+
+/* ════ PROFILE PAGE ════ */
+.prof-grid{display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start;}
+@media(max-width:820px){.prof-grid{grid-template-columns:1fr;}}
+.prof-side{background:var(--ink2);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:24px;text-align:center;position:sticky;top:80px;}
+.prof-avatar-big{width:140px;height:140px;border-radius:50%;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:48px;color:var(--ink);box-shadow:0 0 0 4px rgba(200,146,42,.15);}
+.prof-name-big{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.prof-role-big{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.prof-meta-row{display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid rgba(255,255,255,.05);font-size:12px;}
+.prof-meta-row:last-of-type{border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:18px;}
+.prof-meta-lbl{color:rgba(255,255,255,.4);}
+.prof-meta-val{color:var(--white);font-weight:600;}
+
+.form-row{margin-bottom:18px;}
+.form-label{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:8px;}
+.form-input,.form-textarea{width:100%;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:var(--white);font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;border-radius:6px;outline:none;transition:all .2s;}
+.form-input:focus,.form-textarea:focus{border-color:var(--gold);background:rgba(255,255,255,.06);}
+.form-textarea{min-height:90px;resize:vertical;line-height:1.5;}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:560px){.form-grid-2{grid-template-columns:1fr;}}
+.skill-chips-edit{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:6px;}
+.skill-chip-edit{font-size:11px;font-weight:600;color:rgba(255,255,255,.8);background:rgba(200,146,42,.12);border:1px solid rgba(200,146,42,.25);padding:5px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:6px;}
+.skill-chip-edit svg{width:10px;height:10px;cursor:pointer;opacity:.5;stroke:currentColor;fill:none;stroke-width:2;}
+.skill-chip-edit svg:hover{opacity:1;color:var(--red-lt);}
+.skill-chip-add{font-size:11px;color:rgba(255,255,255,.4);padding:5px 10px;border:1px dashed rgba(255,255,255,.15);border-radius:4px;cursor:pointer;}
+.skill-chip-add:hover{color:var(--gold);border-color:var(--gold);}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);max-width:480px;width:90%;z-index:9999;padding:14px 20px;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;line-height:1.5;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;}
+#toast.success{background:#0a1a0a;border:1px solid rgba(100,200,100,.4);color:rgba(200,255,200,.9);}
+#toast.error{background:#1a0808;border:1px solid rgba(192,57,43,.4);color:rgba(255,180,180,.9);}
+#toast.info{background:var(--ink2);border:1px solid rgba(200,146,42,.4);color:rgba(255,255,255,.85);}
+
+.col-span-7{grid-column:span 7;}
+.col-span-5{grid-column:span 5;}
+.col-span-4{grid-column:span 4;}
+.col-span-3{grid-column:span 3;}
+.col-span-6{grid-column:span 6;}
+.col-span-12{grid-column:span 12;}
+@media(max-width:1100px){.col-span-7,.col-span-5,.col-span-4,.col-span-3,.col-span-6{grid-column:span 12;}}
+
+</style>
+</head>
+<body>
+<script src="nv-cloud.js"></script>
+
+<!-- ═══════════════════ LOGIN ═══════════════════ -->
+<div id="page-login" class="page active">
+  <div class="login-stage">
+    <div class="login-art">
+      <div class="login-brand">
+        <span class="login-brand-tag" onclick="goToNV()" style="cursor:pointer;" title="Back to Next Vision">Next<span>Vision</span></span>
+        <span class="login-brand-name" onclick="goToTribe()" style="cursor:pointer;" title="Tulsa Film Tribe public site">The <em>Tribe</em> · Portal</span>
+      </div>
+      <div class="login-art-content">
+        <div class="login-eyebrow">Members Only · Tulsa Film Tribe</div>
+        <h1 class="login-headline">Stronger<br/>Together.<br/><em>Wilder</em> Apart.</h1>
+        <p class="login-subhead">"A collective is what we make of it. The portal is the room — projects, jobs, gear, and the people who pick up the phone when you call." <br/><br/>— Paul Said, Founder</p>
+      </div>
+      <div class="login-stats">
+        <div><div class="login-stat-num"><em>12</em></div><div class="login-stat-label">Active Members</div></div>
+        <div><div class="login-stat-num"><em>4</em></div><div class="login-stat-label">Open Projects</div></div>
+        <div><div class="login-stat-num"><em>5</em></div><div class="login-stat-label">Jobs This Week</div></div>
+      </div>
+    </div>
+    <div class="login-form">
+      <div class="login-card-eyebrow">Sign in</div>
+      <h2 class="login-card-title">Welcome<br/><em>Back.</em></h2>
+      <p class="login-card-sub">Use your Tribe credentials. If you've forgotten your password, ask Paul or Diana to reset it from the admin.</p>
+      <div class="login-form-fields">
+        <div class="login-field">
+          <label class="login-label">Email or handle</label>
+          <input class="login-input" id="login-email" value="maya@tribe" placeholder="you@tribe"/>
+        </div>
+        <div class="login-field">
+          <label class="login-label">Password</label>
+          <input class="login-input" type="password" id="login-pass" value="••••••••"/>
+        </div>
+        <button class="login-btn" onclick="doLogin()">
+          Enter the Portal
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <p class="login-hint">Demo: any creds work. Click <code>Enter the Portal</code> to continue.</p>
+      </div>
+      <div class="login-foot">
+        <span>Not a member yet? <a onclick="goToTribeApply()">Apply</a></span>
+        <a onclick="alert('Reset link sent. (Demo)')">Forgot password?</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ APP SHELL ═══════════════════ -->
+<div id="app" style="display:none;">
+
+<nav class="topbar">
+  <div class="tb-brand" onclick="navTo('home')">
+    <span class="tb-brand-tag">Next<span>Vision</span></span>
+    <span class="tb-brand-name">The <em>Tribe</em></span>
+  </div>
+  <span class="tb-portal-pill">Member Portal</span>
+  <div class="tb-eco">
+    <span class="tb-eco-link" onclick="goToTribe()" title="The Tulsa Film Tribe (public site)">Tribe</span>
+    <span class="tb-eco-sep">·</span>
+    <span class="tb-eco-link" onclick="goToNV()" title="Next Vision (agency)">NV</span>
+  </div>
+  <div class="tb-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input placeholder="Search projects, jobs, members…"/>
+    <span class="tb-search-shortcut">⌘K</span>
+  </div>
+  <div class="tb-actions">
+    <button class="tb-icon-btn" title="Calendar"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+    <button class="tb-icon-btn" title="Messages"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="dot"></span></button>
+    <button class="tb-icon-btn" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot"></span></button>
+    <div class="tb-me" onclick="navTo('profile')">
+      <div class="tb-me-avatar" style="background:linear-gradient(135deg,#C0392B,#C8922A);">MR</div>
+      <span class="tb-me-name">Maya R.</span>
+    </div>
+  </div>
+</nav>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Tribe</div>
+    <div class="nav-item active" data-page="home" onclick="navTo('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      Home
+    </div>
+    <div class="nav-item" data-page="projects" onclick="navTo('projects')">
+      <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      Projects
+      <span class="badge">4</span>
+    </div>
+    <div class="nav-item" data-page="jobs" onclick="navTo('jobs')">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Jobs
+      <span class="badge">5</span>
+    </div>
+    <div class="nav-item" data-page="benefits" onclick="navTo('benefits')">
+      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Benefits
+    </div>
+    <div class="nav-item" data-page="directory" onclick="navTo('directory')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Directory
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">You</div>
+    <div class="nav-item" data-page="profile" onclick="navTo('profile')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      My Profile
+    </div>
+    <div class="nav-item" onclick="alert('(Demo) Calendar')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Calendar
+    </div>
+    <div class="nav-item" onclick="alert('(Demo) Messages')">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </div>
+    <div class="nav-item" onclick="logout()">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Sign Out
+    </div>
+  </div>
+  <div class="sidebar-foot">
+    <div class="sidebar-foot-card">
+      <div class="sidebar-foot-eyebrow">Flagship</div>
+      <div class="sidebar-foot-title">Greenwood — A Living Memory</div>
+      <div class="sidebar-foot-cta" onclick="navTo('projects')">View progress →</div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ═══════════════════ HOME ═══════════════════ -->
+<div id="page-home" class="page active">
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <div class="page-eyebrow">The Room</div>
+        <h1 class="page-title">Good morning,<br/><em>Maya.</em></h1>
+        <p class="page-sub">Three layouts to choose from. The Tribe earns its rhythm differently each week — try whichever fits your headspace.</p>
+      </div>
+      <div class="layout-toggle">
+        <button class="active" onclick="setLayout(1,this)">01 · Editorial</button>
+        <button onclick="setLayout(2,this)">02 · Console</button>
+        <button onclick="setLayout(3,this)">03 · Marquee</button>
+      </div>
+    </div>
+  </div>
+  <div class="page-body">
+
+    <!-- ─── LAYOUT 1: Editorial Brief ─── -->
+    <div id="layout-1" class="layout-pane">
+      <div class="v1-hero">
+        <div class="v1-hero-inner">
+          <div>
+            <div class="v1-greet">This week's brief · Apr 26</div>
+            <h2 class="v1-headline">The flagship is<br/>two pickups<br/>from <em>locked.</em></h2>
+            <p class="v1-blurb">Greenwood reaches its director's cut review on May 8. Hille bidding closes Friday. Sirens shoots this weekend. The week wants three things from us — show up, read your call sheet, return the gear clean.</p>
+            <div class="v1-meta-row">
+              <div><div class="v1-meta-num"><em>72%</em></div><div class="v1-meta-lbl">Greenwood Done</div></div>
+              <div><div class="v1-meta-num">5</div><div class="v1-meta-lbl">Open Jobs</div></div>
+              <div><div class="v1-meta-num">3</div><div class="v1-meta-lbl">Days On Set</div></div>
+            </div>
+          </div>
+          <div class="v1-hero-photo"><div class="v1-hero-photo-cap"><em>From the cutting room</em>Greenwood — A Living Memory</div></div>
+        </div>
+      </div>
+
+      <div class="v1-grid">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">From the <em>Founder</em></div>
+            <span class="card-link" onclick="alert('(Demo) Full feed')">All updates →</span>
+          </div>
+          <div id="v1-feed"></div>
+        </div>
+
+        <div class="v1-side-stack">
+          <div class="card card-tight">
+            <div class="card-head"><div class="card-title">This <em>Week</em></div><span class="card-link" onclick="alert('(Demo) Calendar')">Cal →</span></div>
+            <ul class="v1-mini-list" id="v1-cal"></ul>
+          </div>
+
+          <div class="card card-tight">
+            <div class="card-head"><div class="card-title">Open <em>Jobs</em></div><span class="card-link" onclick="navTo('jobs')">All →</span></div>
+            <ul class="v1-mini-list" id="v1-jobs"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="card-head" style="margin-bottom:14px;">
+          <div class="card-title">Recent <em>Tribe Work</em></div>
+          <span class="card-link" onclick="alert('(Demo) Showcase')">Showcase →</span>
+        </div>
+        <div class="work-strip" id="v1-work"></div>
+      </div>
+    </div>
+
+    <!-- ─── LAYOUT 2: Dense Console ─── -->
+    <div id="layout-2" class="layout-pane" style="display:none;">
+      <div class="v2-grid">
+        <!-- Top KPIs -->
+        <div class="v2-tile col-span-3">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Active Projects</div></div>
+          <div class="v2-tile-num"><em>4</em></div>
+          <div class="v2-tile-delta up">↑ 1 since last week</div>
+        </div>
+        <div class="v2-tile col-span-3">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Open Jobs</div></div>
+          <div class="v2-tile-num">5</div>
+          <div class="v2-tile-delta">2 closing this week</div>
+        </div>
+        <div class="v2-tile col-span-3">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Days On Set</div></div>
+          <div class="v2-tile-num">3</div>
+          <div class="v2-tile-delta">Apr 26 · Apr 27 · Apr 28</div>
+        </div>
+        <div class="v2-tile col-span-3">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>YTD Earned</div></div>
+          <div class="v2-tile-num"><em>$8.2k</em></div>
+          <div class="v2-tile-delta up">+$1.8k pending</div>
+        </div>
+
+        <!-- Project progress -->
+        <div class="v2-tile col-span-7">
+          <div class="v2-tile-head">
+            <div class="v2-tile-label"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Project Pulse</div>
+            <span class="card-link" onclick="navTo('projects')">All projects →</span>
+          </div>
+          <div id="v2-progress"></div>
+        </div>
+
+        <!-- Crew status -->
+        <div class="v2-tile col-span-5">
+          <div class="v2-tile-head">
+            <div class="v2-tile-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>Tribe Status</div>
+            <span class="card-link" onclick="navTo('directory')">Directory →</span>
+          </div>
+          <div>
+            <div class="v2-status-row"><span class="v2-status-dot green"></span><span class="v2-status-name">Paul Said</span><span class="v2-status-meta">on set · greenwood</span></div>
+            <div class="v2-status-row"><span class="v2-status-dot green"></span><span class="v2-status-name">Diana Sims</span><span class="v2-status-meta">in office · pitching</span></div>
+            <div class="v2-status-row"><span class="v2-status-dot gold"></span><span class="v2-status-name">Jordan Wilks</span><span class="v2-status-meta">prep · hille</span></div>
+            <div class="v2-status-row"><span class="v2-status-dot green"></span><span class="v2-status-name">Tessa Bloom</span><span class="v2-status-meta">on set · sirens</span></div>
+            <div class="v2-status-row"><span class="v2-status-dot red"></span><span class="v2-status-name">Asha Kone</span><span class="v2-status-meta">edit bay · do not disturb</span></div>
+            <div class="v2-status-row"><span class="v2-status-dot gold"></span><span class="v2-status-name">Marcus Lin</span><span class="v2-status-meta">studio · podcast</span></div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="v2-tile col-span-5">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Quick Actions</div></div>
+          <div class="v2-quick-grid">
+            <div class="v2-quick-btn" onclick="navTo('jobs')">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <div><div class="v2-quick-name">Apply for Job</div><div class="v2-quick-desc">5 open this week</div></div>
+            </div>
+            <div class="v2-quick-btn" onclick="navTo('benefits')">
+              <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <div><div class="v2-quick-name">Reserve Gear</div><div class="v2-quick-desc">FX6, RED, lighting</div></div>
+            </div>
+            <div class="v2-quick-btn" onclick="alert('(Demo) New post')">
+              <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              <div><div class="v2-quick-name">Submit Work</div><div class="v2-quick-desc">For showcase / festival</div></div>
+            </div>
+            <div class="v2-quick-btn" onclick="alert('(Demo) Templates')">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <div><div class="v2-quick-name">Get Templates</div><div class="v2-quick-desc">Deal memo, releases</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent feed -->
+        <div class="v2-tile col-span-7">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>Activity</div></div>
+          <div id="v2-feed"></div>
+        </div>
+
+        <!-- Schedule strip -->
+        <div class="v2-tile col-span-12">
+          <div class="v2-tile-head"><div class="v2-tile-label"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Coming Up</div></div>
+          <ul class="v1-mini-list" id="v2-cal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0 24px;"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── LAYOUT 3: Marquee / Photo-forward ─── -->
+    <div id="layout-3" class="layout-pane" style="display:none;">
+      <div class="v3-stack">
+
+        <div class="v3-marquee">
+          <div class="v3-marquee-inner">
+            <div class="v3-marquee-eyebrow">Now Showing · Featured This Week</div>
+            <h2 class="v3-marquee-title">Greenwood —<br/>A Living <em>Memory.</em></h2>
+            <p class="v3-marquee-blurb">Two pickup days, one director's cut review, and the doc that started it all enters its final stretch. Selected work from the room you helped build.</p>
+            <div class="v3-marquee-meta">
+              <span class="v3-marquee-meta-item"><span class="dot"></span>72% complete</span>
+              <span class="v3-marquee-meta-item"><span class="dot"></span>Pickups Apr 28–30</span>
+              <span class="v3-marquee-meta-item"><span class="dot"></span>DC Review May 8</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card-head" style="margin-bottom:18px;padding:0 4px;">
+            <div class="card-title" style="font-size:18px;">Editor's <em>Picks</em></div>
+            <span class="card-link" onclick="alert('(Demo) Showcase')">All work →</span>
+          </div>
+          <div class="v3-cols" id="v3-features"></div>
+        </div>
+
+        <div class="v3-cols" style="grid-template-columns:1.4fr 1fr;">
+          <div class="card">
+            <div class="card-head"><div class="card-title">From the <em>Founder</em></div><span class="card-link" onclick="alert('(Demo)')">All →</span></div>
+            <div id="v3-feed"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">This <em>Week</em></div><span class="card-link" onclick="alert('(Demo)')">Cal →</span></div>
+            <ul class="v1-mini-list" id="v3-cal"></ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ PROJECTS ═══════════════════ -->
+<div id="page-projects" class="page">
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <div class="page-eyebrow">Active Productions</div>
+        <h1 class="page-title">The <em>Work.</em></h1>
+        <p class="page-sub">Every Tribe production you're attached to, with crew, milestones, and the gear that's checked out against it.</p>
+      </div>
+      <button class="btn btn-gold" onclick="alert('(Demo) Pitch a project')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Pitch a Project
+      </button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="proj-grid" id="proj-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ JOBS ═══════════════════ -->
+<div id="page-jobs" class="page">
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <div class="page-eyebrow">Tribe Jobs Board</div>
+        <h1 class="page-title">Paid<br/><em>Work.</em></h1>
+        <p class="page-sub">Posted by Tribe members and Paul. We hold rates, we don't undercut, we ship clean. Apply through the portal — Paul reviews everything.</p>
+      </div>
+      <button class="btn btn-gold" onclick="alert('(Demo) Post a job')">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Post a Job
+      </button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="jobs-filter">
+      <button class="jobs-pill active" onclick="filterJobs('all',this)">All</button>
+      <button class="jobs-pill" onclick="filterJobs('paid',this)">Paid</button>
+      <button class="jobs-pill" onclick="filterJobs('flagship',this)">Flagship</button>
+      <button class="jobs-pill" onclick="filterJobs('client',this)">Client</button>
+      <button class="jobs-pill" onclick="filterJobs('tribe',this)">Tribe / Trade</button>
+      <button class="jobs-pill" onclick="filterJobs('mine',this)">My Applications</button>
+    </div>
+    <div id="jobs-list"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BENEFITS ═══════════════════ -->
+<div id="page-benefits" class="page">
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <div class="page-eyebrow">Member Benefits</div>
+        <h1 class="page-title">What you get<br/>for showing <em>up.</em></h1>
+        <p class="page-sub">The Tribe pools resources so independent creators don't have to fight for them alone. Gear, contracts, suites, festival fees — these are yours when you're active.</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="ben-grid" id="ben-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DIRECTORY ═══════════════════ -->
+<div id="page-directory" class="page">
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <div class="page-eyebrow">The Roster</div>
+        <h1 class="page-title">The <em>People.</em></h1>
+        <p class="page-sub">Every active member, by discipline. Click anyone to see reel, rate, and contact.</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="dir-grid" id="dir-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PROFILE ═══════════════════ -->
+<div id="page-profile" class="page">
+  <div class="page-head">
+    <div class="page-head-row">
+      <div>
+        <div class="page-eyebrow">Member Profile</div>
+        <h1 class="page-title">Edit your<br/><em>profile.</em></h1>
+        <p class="page-sub">This is what other Tribe members and clients see when they search the directory. Keep it tight.</p>
+      </div>
+      <button class="btn btn-gold" onclick="saveProfile()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Changes
+      </button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="prof-grid">
+      <aside class="prof-side">
+        <div class="prof-avatar-big" style="background:linear-gradient(135deg,#C0392B,#C8922A);">MR</div>
+        <div class="prof-name-big">Maya Reyes</div>
+        <div class="prof-role-big">Director / DP</div>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:18px;font-size:10px;" onclick="alert('(Demo) Upload photo')">Change Photo</button>
+        <div class="prof-meta-row"><span class="prof-meta-lbl">Member since</span><span class="prof-meta-val">Mar 2024</span></div>
+        <div class="prof-meta-row"><span class="prof-meta-lbl">Discipline</span><span class="prof-meta-val">Filmmakers</span></div>
+        <div class="prof-meta-row"><span class="prof-meta-lbl">Status</span><span class="prof-meta-val" style="color:#85c285;">● Active</span></div>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:10px;" onclick="alert('(Demo) View public profile')">View Public Profile</button>
+      </aside>
+      <div class="card">
+        <div class="form-grid-2">
+          <div class="form-row"><label class="form-label">Display Name</label><input class="form-input" value="Maya Reyes"/></div>
+          <div class="form-row"><label class="form-label">Pronouns</label><input class="form-input" value="she/her"/></div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row"><label class="form-label">Role / Title</label><input class="form-input" value="Director / DP"/></div>
+          <div class="form-row"><label class="form-label">City</label><input class="form-input" value="Tulsa, OK"/></div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Short Bio</label>
+          <textarea class="form-textarea">Documentary-leaning narrative director. Comfortable on Sony FX6 and 16mm. Currently in post on the Greenwood Project.</textarea>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row"><label class="form-label">Day Rate</label><input class="form-input" value="$650/day"/></div>
+          <div class="form-row"><label class="form-label">Reel</label><input class="form-input" value="vimeo.com/mayareyes-reel"/></div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Skills & Equipment</label>
+          <div class="skill-chips-edit" id="skills-chips"></div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row"><label class="form-label">Email (private)</label><input class="form-input" value="maya@mayareyes.co"/></div>
+          <div class="form-row"><label class="form-label">Phone (private)</label><input class="form-input" value="(918) 555-0142"/></div>
+        </div>
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;color:rgba(255,255,255,.4);line-height:1.6;">
+          Profile changes go to leadership for approval before they appear on the public Tribe directory.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+</div><!-- /app -->
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   PORTAL ROUTING
+   ════════════════════════════════════════════════════ */
+function showPage(id){
+  document.querySelectorAll('#app .page, #page-login').forEach(function(p){p.classList.remove('active');});
+  var el=document.getElementById('page-'+id);
+  if(el) el.classList.add('active');
+  window.scrollTo(0,0);
+}
+function navTo(id){
+  showPage(id);
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.toggle('active', n.dataset.page===id);});
+}
+async function doLogin(){
+  var emailEl = document.getElementById('login-email');
+  var passEl  = document.getElementById('login-pass');
+  var email = (emailEl.value || '').trim();
+  var pass  = passEl.value || '';
+
+  // Demo mode: prefilled placeholder values → just enter the portal
+  var isDemo = (email === 'maya@tribe' || !email.includes('@')) && (pass === '••••••••' || pass.length < 4);
+
+  if (isDemo || !window.NVCloud || !NVCloud.isEnabled()) {
+    enterPortal('Maya');
+    toast(isDemo ? 'Demo mode — welcome, Maya. ✦' : 'Welcome back. ✦','info');
+    return;
+  }
+
+  // Real auth via Supabase
+  toast('Signing in…','info');
+  try {
+    var res = await NVCloud.signIn(email, pass);
+    if (res.error) { toast('Sign-in failed: '+res.error.message,'error'); return; }
+    var user = res.data && res.data.user;
+    var name = (user && user.user_metadata && user.user_metadata.name) || (user && user.email) || 'Member';
+    enterPortal(name);
+    toast('Welcome back. ✦','success');
+  } catch(e) {
+    toast('Sign-in error: '+e.message,'error');
+  }
+}
+function enterPortal(name){
+  document.getElementById('page-login').classList.remove('active');
+  document.getElementById('app').style.display='block';
+  showPage('home');
+  // Optionally update topbar greeting if element exists
+  var nameEl = document.querySelector('.tb-me-name');
+  if (nameEl && name) nameEl.textContent = name;
+}
+async function logout(){
+  if (window.NVCloud && NVCloud.isEnabled()) { try { await NVCloud.signOut(); } catch(e){} }
+  document.getElementById('app').style.display='none';
+  document.getElementById('page-login').classList.add('active');
+  window.scrollTo(0,0);
+}
+// On page load: if a Supabase session exists, auto-enter the portal
+window.addEventListener('DOMContentLoaded', async function(){
+  if (!window.NVCloud || !NVCloud.isEnabled()) return;
+  try {
+    var sess = await NVCloud.getSession();
+    if (sess && sess.user) {
+      var name = (sess.user.user_metadata && sess.user.user_metadata.name) || sess.user.email || 'Member';
+      enterPortal(name);
+    }
+  } catch(e){}
+});
+function setLayout(n,btn){
+  for(var i=1;i<=3;i++){
+    var p=document.getElementById('layout-'+i);
+    if(p) p.style.display = (i===n)?'block':'none';
+  }
+  document.querySelectorAll('.layout-toggle button').forEach(function(b){b.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+}
+function toast(msg,kind){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.className=kind||'info'; t.style.display='block';
+  setTimeout(function(){t.style.display='none';}, 2600);
+}
+function saveProfile(){toast('Profile changes submitted to leadership for approval.','success');}
+function filterJobs(kind,btn){
+  document.querySelectorAll('.jobs-pill').forEach(function(p){p.classList.remove('active');});
+  if(btn) btn.classList.add('active');
+  toast('Filter: '+kind,'info');
+}
+
+/* ════════════════════════════════════════════════════
+   RENDERERS
+   ════════════════════════════════════════════════════ */
+function escHtml(s){return String(s||'').replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+
+/* Layout 1 — Editorial */
+function renderV1(){
+  var feed = ANNOUNCEMENTS.map(function(a){
+    return '<div class="v1-feed-item">'
+      + '<div><span class="v1-feed-tag '+a.color+'">'+escHtml(a.tag)+'</span><div class="v1-feed-time" style="margin-top:6px;">'+escHtml(a.when)+'</div></div>'
+      + '<div><div class="v1-feed-title">'+escHtml(a.title)+'</div><div class="v1-feed-body">'+escHtml(a.body)+'</div><div class="v1-feed-who">posted by <em>'+escHtml(a.who)+'</em></div></div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('v1-feed').innerHTML = feed;
+
+  var cal = CALENDAR.slice(0,5).map(function(c){
+    return '<li><div class="v1-mini-date"><div class="v1-mini-date-m">'+c.d+'</div><div class="v1-mini-date-d">'+c.n+'</div></div>'
+      + '<div class="v1-mini-info"><div class="v1-mini-title">'+escHtml(c.t)+'</div><div class="v1-mini-meta">'+escHtml(c.loc)+'</div></div>'
+      + '<span class="v1-mini-tag">'+escHtml(c.tag)+'</span></li>';
+  }).join('');
+  document.getElementById('v1-cal').innerHTML = cal;
+
+  var jobs = JOBS.filter(function(j){return !j.filled;}).slice(0,4).map(function(j){
+    return '<li><div class="v1-mini-info"><div class="v1-mini-title">'+escHtml(j.title)+'</div><div class="v1-mini-meta">'+escHtml(j.rate)+' · closes '+escHtml(j.deadline)+'</div></div>'
+      + '<span class="v1-mini-tag">'+escHtml(j.applicants)+' apps</span></li>';
+  }).join('');
+  document.getElementById('v1-jobs').innerHTML = jobs;
+
+  var work = RECENT_WORK.map(function(w){
+    return '<div class="work-tile" style="background:'+w.grad+';">'
+      + '<div class="work-tile-info"><div class="work-tile-type">'+escHtml(w.type)+'</div><div class="work-tile-title">'+escHtml(w.t)+'</div><div class="work-tile-who">'+escHtml(w.who)+'</div></div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('v1-work').innerHTML = work;
+}
+
+/* Layout 2 — Console */
+function renderV2(){
+  var prog = PROJECTS.map(function(p){
+    return '<div class="v2-progress-row"><div class="v2-progress-head"><span class="v2-progress-name">'+escHtml(p.title)+'</span><span class="v2-progress-pct">'+p.progress+'%</span></div>'
+      + '<div class="v2-progress-bar"><div class="v2-progress-fill" style="width:'+p.progress+'%"></div></div></div>';
+  }).join('');
+  document.getElementById('v2-progress').innerHTML = prog;
+
+  var feed = ANNOUNCEMENTS.concat([
+    {tag:"Update",color:"cream",title:"Asha uploaded Greenwood DC v3",body:"Latest cut on the editor's drive. 1h 14m runtime.",who:"Asha Kone",when:"6h ago"},
+    {tag:"Gear",color:"gold",title:"FX6 returned · battery low",body:"Charging now. Available again Apr 27.",who:"Kev Owusu",when:"yesterday"}
+  ]).slice(0,5).map(function(a){
+    return '<div class="v1-feed-item" style="grid-template-columns:60px 1fr;padding:14px 0;">'
+      + '<div><span class="v1-feed-tag '+a.color+'">'+escHtml(a.tag)+'</span></div>'
+      + '<div><div class="v1-feed-title" style="font-size:14px;">'+escHtml(a.title)+'</div><div class="v1-feed-body" style="font-size:12px;margin-bottom:4px;">'+escHtml(a.body)+'</div><div class="v1-feed-who" style="font-size:10px;"><em>'+escHtml(a.who)+'</em> · '+escHtml(a.when)+'</div></div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('v2-feed').innerHTML = feed;
+
+  var cal = CALENDAR.map(function(c){
+    return '<li style="border-bottom-color:rgba(255,255,255,.04);"><div class="v1-mini-date"><div class="v1-mini-date-m">'+c.d+'</div><div class="v1-mini-date-d">'+c.n+'</div></div>'
+      + '<div class="v1-mini-info"><div class="v1-mini-title">'+escHtml(c.t)+'</div><div class="v1-mini-meta">'+escHtml(c.loc)+'</div></div>'
+      + '<span class="v1-mini-tag">'+escHtml(c.tag)+'</span></li>';
+  }).join('');
+  document.getElementById('v2-cal').innerHTML = cal;
+}
+
+/* Layout 3 — Marquee */
+function renderV3(){
+  var feats = RECENT_WORK.slice(0,3).map(function(w){
+    return '<div class="v3-feature">'
+      + '<div class="v3-feature-photo" style="background:'+w.grad+';"></div>'
+      + '<div class="v3-feature-body"><div class="v3-feature-tag">'+escHtml(w.type)+'</div>'
+      + '<div class="v3-feature-title">'+escHtml(w.t)+'</div>'
+      + '<div class="v3-feature-blurb">By '+escHtml(w.who)+'. A look inside one of the rooms the Tribe has been in this season.</div></div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('v3-features').innerHTML = feats;
+
+  var feed = ANNOUNCEMENTS.map(function(a){
+    return '<div class="v1-feed-item">'
+      + '<div><span class="v1-feed-tag '+a.color+'">'+escHtml(a.tag)+'</span><div class="v1-feed-time" style="margin-top:6px;">'+escHtml(a.when)+'</div></div>'
+      + '<div><div class="v1-feed-title">'+escHtml(a.title)+'</div><div class="v1-feed-body">'+escHtml(a.body)+'</div></div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('v3-feed').innerHTML = feed;
+
+  document.getElementById('v3-cal').innerHTML = document.getElementById('v1-cal') ? '' : '';
+  // copy from v1 once rendered, or re-render:
+  var cal = CALENDAR.slice(0,5).map(function(c){
+    return '<li><div class="v1-mini-date"><div class="v1-mini-date-m">'+c.d+'</div><div class="v1-mini-date-d">'+c.n+'</div></div>'
+      + '<div class="v1-mini-info"><div class="v1-mini-title">'+escHtml(c.t)+'</div><div class="v1-mini-meta">'+escHtml(c.loc)+'</div></div>'
+      + '<span class="v1-mini-tag">'+escHtml(c.tag)+'</span></li>';
+  }).join('');
+  document.getElementById('v3-cal').innerHTML = cal;
+}
+
+/* Projects */
+function renderProjects(){
+  var html = PROJECTS.map(function(p){
+    var crew = p.crew.slice(0,4).map(function(c){
+      var initials = c.n==='OPEN'?'+':c.n.split(' ').map(function(s){return s[0];}).join('').slice(0,2);
+      var bg = c.n==='OPEN'?'rgba(255,255,255,.08)':'';
+      return '<div class="proj-crew-avatar" title="'+escHtml(c.n)+' — '+escHtml(c.r)+'"'+(bg?' style="background:'+bg+';color:rgba(255,255,255,.5);"':'')+'>'+escHtml(initials)+'</div>';
+    }).join('');
+    return '<div class="proj-card" onclick="alert(\'(Demo) Open '+escHtml(p.title)+'\')">'
+      + '<div class="proj-cover" style="background:'+p.coverGrad+';"><div class="proj-cover-inner"><span class="proj-type">'+escHtml(p.type)+'</span><span class="proj-phase">'+escHtml(p.phase)+'</span></div></div>'
+      + '<div class="proj-body">'
+      + '<div class="proj-title">'+escHtml(p.title)+'</div>'
+      + '<div class="proj-prog-bar"><div class="proj-prog-fill" style="width:'+p.progress+'%;"></div></div>'
+      + '<div class="proj-prog-meta"><span>Progress</span><span><em>'+p.progress+'%</em></span></div>'
+      + '<div class="proj-crew"><div class="proj-crew-stack">'+crew+'</div><span class="proj-crew-count">'+p.crew.length+' on crew</span></div>'
+      + '<div class="proj-foot"><span>Last: '+escHtml(p.lastUpdate)+'</span><span class="proj-foot-next">Next: '+escHtml(p.nextMilestone)+'</span></div>'
+      + '</div></div>';
+  }).join('');
+  document.getElementById('proj-grid').innerHTML = html;
+}
+
+/* Jobs */
+function renderJobs(){
+  var html = JOBS.map(function(j){
+    return '<div class="job-row'+(j.filled?' filled':'')+'">'
+      + '<div>'
+      + '<div class="job-tag-row"><span class="job-type'+(j.filled?' filled':'')+'">'+escHtml(j.type)+'</span>'
+      + '<span class="job-deadline">'+(j.filled?'Filled':'<em>Closes '+escHtml(j.deadline)+'</em>')+'</span></div>'
+      + '<div class="job-title">'+escHtml(j.title)+'</div>'
+      + '<div class="job-rate">'+escHtml(j.rate)+'</div>'
+      + '<div class="job-meta">'
+      + j.tags.map(function(t){return '<span class="skill-chip">'+escHtml(t)+'</span>';}).join('')
+      + '<span>· posted by '+escHtml(j.who)+' '+escHtml(j.posted)+'</span>'
+      + '<span class="job-applicants">· '+j.applicants+' applicants</span>'
+      + '</div></div>'
+      + '<div class="job-action">'
+      + '<button class="job-action-btn '+(j.filled?'filled':'apply')+'" onclick="event.stopPropagation();applyJob(\''+j.id+'\','+j.filled+')">'+(j.filled?'Filled':'Apply')+'</button>'
+      + '</div></div>';
+  }).join('');
+  document.getElementById('jobs-list').innerHTML = html;
+}
+function applyJob(id,filled){
+  if(filled){toast('This job is already filled.','error');return;}
+  toast('Application submitted. Paul will review.','success');
+}
+
+/* Benefits */
+const BEN_ICONS = {
+  camera:'<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  book:  '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/></svg>',
+  users: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  film:  '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></svg>',
+  mic:   '<svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>',
+  map:   '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><path d="M8 2v16M16 6v16"/></svg>',
+  award: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>',
+  hand:  '<svg viewBox="0 0 24 24"><path d="M9 11V6a2 2 0 0 1 4 0v5M13 11V4a2 2 0 0 1 4 0v9M17 11V6a2 2 0 0 1 4 0v9a8 8 0 0 1-16 0v-1a2 2 0 0 1 4 0"/></svg>'
+};
+function renderBenefits(){
+  var html = BENEFITS.map(function(b){
+    return '<div class="ben-card">'
+      + '<div class="ben-icon">'+BEN_ICONS[b.icon]+'</div>'
+      + '<div class="ben-title">'+escHtml(b.title)+'</div>'
+      + '<div class="ben-body">'+escHtml(b.body)+'</div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('ben-grid').innerHTML = html;
+}
+
+/* Directory */
+function renderDirectory(){
+  var html = DIRECTORY.map(function(p){
+    var initials = p.n.split(' ').map(function(s){return s[0];}).join('').slice(0,2);
+    return '<div class="dir-card" onclick="alert(\'(Demo) Open '+escHtml(p.n)+'\')">'
+      + '<div class="dir-avatar" style="background:linear-gradient(135deg,'+p.c+',#0c0b09);">'+initials+'</div>'
+      + '<div class="dir-name">'+escHtml(p.n)+'</div>'
+      + '<div class="dir-role">'+escHtml(p.r)+'</div>'
+      + '<div class="dir-disc">'+escHtml(p.d)+'</div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('dir-grid').innerHTML = html;
+}
+
+/* Skills */
+function renderSkills(){
+  var html = ME.skills.map(function(s){
+    return '<span class="skill-chip-edit">'+escHtml(s)+'<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>';
+  }).join('') + '<span class="skill-chip-add" onclick="addSkill()">+ Add skill</span>';
+  document.getElementById('skills-chips').innerHTML = html;
+}
+function addSkill(){var s=prompt('Add a skill or piece of gear:');if(s){ME.skills.push(s);renderSkills();}}
+
+/* INIT */
+window.addEventListener('DOMContentLoaded', function(){
+  renderV1();
+  renderV2();
+  renderV3();
+  renderProjects();
+  renderJobs();
+  renderBenefits();
+  renderDirectory();
+  renderSkills();
+});
+</script>
+</body>
+</html>
